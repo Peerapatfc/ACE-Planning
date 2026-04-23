@@ -1,6 +1,13 @@
 # STORY-RBAC-03: Frontend Permission Enforcement
 
-**Status:** Backlog
+**Status:** To Do | **ClickUp:** [ACE-1613](https://app.clickup.com/t/86d2hd9b3) | **Assignee:** Unassigned | **SP:** 13
+
+## Implementation Tasks (ClickUp Subtasks)
+
+| Task ID | Name | Status |
+|---|---|---|
+| [ACE-1677](https://app.clickup.com/t/86d2qj8gk) | Create component or page denied permission | To Do |
+| [ACE-1678](https://app.clickup.com/t/86d2qj8uq) | Guard middleware permission | To Do |
 
 ## User Story
 

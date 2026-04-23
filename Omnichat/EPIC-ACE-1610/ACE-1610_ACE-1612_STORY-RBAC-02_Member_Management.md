@@ -1,6 +1,20 @@
 # STORY-RBAC-02: Member Management
 
-**Status:** Backlog
+**Status:** To Do | **ClickUp:** [ACE-1612](https://app.clickup.com/t/86d2hd9a5) | **Assignee:** griangsak | **SP:** 13
+
+## Implementation Tasks (ClickUp Subtasks)
+
+| Task ID | Name | Status |
+|---|---|---|
+| [ACE-1668](https://app.clickup.com/t/86d2qhqtx) | Design diagrams | To Do |
+| [ACE-1669](https://app.clickup.com/t/86d2qhqvv) | Setup sendgrid | To Do |
+| [ACE-1674](https://app.clickup.com/t/86d2qhv4k) | Template email | To Do |
+| [ACE-1670](https://app.clickup.com/t/86d2qhruw) | Auto assign admin create tenant | To Do |
+| [ACE-1671](https://app.clickup.com/t/86d2qhry7) | Invitation flow | To Do |
+| [ACE-1672](https://app.clickup.com/t/86d2qht0j) | Change role flow | To Do |
+| [ACE-1676](https://app.clickup.com/t/86d2qhyub) | Remove member | To Do |
+| [ACE-1673](https://app.clickup.com/t/86d2qhufy) | Set default limit invitation | To Do |
+| [ACE-1675](https://app.clickup.com/t/86d2qhw4t) | API Table | To Do |
 
 ## User Story
 

@@ -5,14 +5,15 @@
 | **ClickUp ID** | ACE-1450 |
 | **Task ID** | 86d2cxp5u |
 | **Type** | User Story Card |
-| **Status** | To Do |
+| **Status** | In Progress |
 | **Story Points** | 5 SP |
 | **Parent Epic** | EPIC-A2.4: Search/Filter/Sort/Saved Views (ACE-1439) |
 | **ACE Product** | Omni |
 | **Project** | ACE |
+| **Sprint** | Sprint 3 (3/24 - 4/7) |
 | **List** | Omni › Ready to Sprint |
 | **Created by** | Thanyapong |
-| **Assignees** | — |
+| **Assignees** | Peerapat Pongnipakorn |
 | **Priority** | — |
 | **ClickUp URL** | https://app.clickup.com/t/86d2cxp5u |
 
@@ -28,6 +29,16 @@
 
 ## Description
 
+คุณเลือก "user saved view" ดังนั้นเราจะทำ views แบบ per-user
+
+Saved view คือชุดของ:
+- filters (structured)
+- sort mode
+- optional include search query (ให้เป็น option toggle เพื่อความยืดหยุ่น)
+
+แล้วแสดงเป็น pills บน UI เพื่อกดสลับเร็ว
+ต้องมี set default view และ reset behavior ชัดเจน
+
 Saved views are **per-user** presets. Each saved view stores:
 - Filters (structured)
 - Sort mode
@@ -37,7 +48,7 @@ Views are displayed as pills above the conversation list for quick switching. Ap
 
 ### Scope
 
-- Built-in system pills (hardcoded — cannot edit or delete)
+- Built-in system pills (hardcoded — ไม่สามารถ edit หรือ delete ได้)
 - Create saved view from current state (capture-first flow)
 - Rename / delete saved view
 - Set default view for user
@@ -81,8 +92,8 @@ Views are displayed as pills above the conversation list for quick switching. Ap
 
 ### AC-6: Rename and delete saved view
 - **Given** a saved view exists
-- **When** the agent renames it → UI updates accordingly
-- **When** the agent deletes it → if it was the default view, system reverts to System Default View (section 1.1a)
+- **When** the agent renames or deletes it
+- **Then** the UI updates accordingly and deleting the default view reverts to System Default View (section 1.1a)
 
 ### AC-7: Max 20 saved views per user
 - **Given** a user already has 20 saved views
@@ -121,4 +132,16 @@ Views are displayed as pills above the conversation list for quick switching. Ap
 
 ---
 
-_Exported from ClickUp on 2026-03-31. Source: https://app.clickup.com/t/86d2cxp5u_
+## Subtasks
+
+| ID | Title | Status |
+|----|-------|--------|
+| [ACE-1552](https://app.clickup.com/t/86d2g1yhh) | User Saved Views Model , Service | To Do |
+| [ACE-1553](https://app.clickup.com/t/86d2g1z3w) | API : Create,Get,Delete | To Do |
+| [ACE-1554](https://app.clickup.com/t/86d2g20kr) | FE : Apply Saved Views Components | To Do |
+| [ACE-1555](https://app.clickup.com/t/86d2g20v7) | FE : Create Saved Views Components | To Do |
+| [ACE-1556](https://app.clickup.com/t/86d2g21wj) | FE : Modal alert create views more than 20 | To Do |
+
+---
+
+_Exported from ClickUp on 2026-04-07. Source: https://app.clickup.com/t/86d2cxp5u_
