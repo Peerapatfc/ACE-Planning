@@ -51,6 +51,7 @@ workflows/read_clickup_details.md
 | ACE-1610 | RBAC | MVP | Admin/Supervisor/Agent 3-tier roles |
 | ACE-1614 | Settings & Config | MVP | Workspace settings, business hours, members |
 | ACE-1618 | SLA Management | MVP | SLA rules, overdue tracking |
+| ACE-1970 | Login Security | MVP | MFA, sessions, account lock, field encryption |
 
 ## Domain Architecture
 
@@ -65,6 +66,15 @@ workflows/read_clickup_details.md
 - Channel abstraction is vendor-neutral — schema must accommodate adding new channels without migration
 - Credentials stored by reference (separate service/vault), not inline
 - RBAC (ACE-1610) gates all inbox operations — stories reference permission checks against Admin/Supervisor/Agent roles
+
+## Story Analysis Workflow
+
+When analyzing or estimating a story, always cross-reference the implementation repo at
+`D:\Work\Meaw - Q\ACE\ace` to identify what already exists vs what needs building.
+
+Per epic, two companion files are created alongside story files:
+- `epic-explanation.md` — Thai human-friendly narrative of the whole epic
+- `story-task-breakdown.md` — task breakdown per story with 🔧 (fix existing) or (no icon = new) markers
 
 ## Document Conventions
 
