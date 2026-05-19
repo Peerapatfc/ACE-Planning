@@ -1,0 +1,62 @@
+sequenceDiagram
+    autonumber
+    participant FE as browser
+    participant GW as api-gateway
+    participant AUTH as orches-auth-service
+    participant SVC as user-service
+    participant DB as user-db
+    participant R as Redis
+    participant NOTIF as notification-service
+    participant SES as amazon-ses
+
+    rect rgb(240,248,255)
+    Note over FE,SES: 1. Login & Pre-checks
+
+    FE->>GW: POST /auth/login { email, password }
+    GW->>AUTH: login({ email, password })
+    AUTH->>SVC: find_user_by_email(email)
+    SVC->>DB: SELECT id, is_email_verified, password_hash,<br/>failed_login_attempts, hard_locked<br/>FROM users WHERE email = ? AND deleted_at IS NULL
+    DB-->>SVC: user | null
+    SVC-->>AUTH: user | RpcException(404)
+
+    alt user not found | not verified | hard_locked = true
+        AUTH-->>GW: 401 Unauthorized
+        GW-->>FE: 401 Unauthorized
+    end
+
+    AUTH->>R: EXISTS login:softlock:{userId}
+    R-->>AUTH: 0 (no active soft lock)
+    end
+
+    rect rgb(255,248,235)
+    Note over FE,SES: 2. Credential Validation
+
+    Note over AUTH: bcrypt.compare(password, password_hash) → FAIL
+    end
+
+    rect rgb(255,235,235)
+    Note over FE,SES: 3. Record Failed Attempt & Set Soft Lock
+
+    AUTH->>SVC: record_failed_attempt(user_id)
+    SVC->>DB: UPDATE users<br/>SET failed_login_attempts = failed_login_attempts + 1,<br/>    last_failed_login_at = NOW()<br/>WHERE id = ? RETURNING failed_login_attempts
+    DB-->>SVC: { failed_login_attempts: 5 }
+    SVC-->>AUTH: { failed_login_attempts: 5 }
+    Note right of AUTH: 5 >= SOFT_LOCK_THRESHOLD(5) → set soft lock<br/>5 < HARD_LOCK_THRESHOLD(10) → no hard lock yet
+
+    AUTH->>R: SET login:softlock:{userId} 1 EX 900
+    Note right of R: TTL 900s = 15 min auto-expire
+    R-->>AUTH: OK
+    end
+
+    rect rgb(240,255,245)
+    Note over FE,SES: 4. Notify User
+
+    AUTH-)NOTIF: emit('send_account_soft_lock_email') { to: user.email }
+    Note right of NOTIF: Fire-and-forget ⚡  emit only when newly triggered<br/>⚠ New handler + template needed
+    NOTIF->>SES: nodemailer.sendMail() via SMTP
+    SES-->>NOTIF: 250 OK
+
+    AUTH-->>GW: 401 { error_code: "SOFT_LOCKED",<br/>message: "Account temporarily locked. Try again in X minutes,<br/>or reset your password to unlock immediately." }
+    GW-->>FE: 401 SOFT_LOCKED
+    Note over FE: UI: countdown timer + "Reset password" link (→ LOG-08)
+    end

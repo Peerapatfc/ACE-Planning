@@ -1,0 +1,46 @@
+sequenceDiagram
+    autonumber
+    participant FE as browser
+    participant GW as api-gateway
+    participant AUTH as orches-auth-service
+    participant SVC as user-service
+    participant DB as user-db
+    participant R as Redis
+
+    rect rgb(240,248,255)
+    Note over FE,R: 1. Login Attempt
+
+    FE->>GW: POST /auth/login { email, password }
+    GW->>AUTH: login({ email, password })
+    AUTH->>SVC: find_user_by_email(email)
+    SVC->>DB: SELECT id, is_email_verified, hard_locked<br/>FROM users WHERE email = ? AND deleted_at IS NULL
+    DB-->>SVC: user | null
+    SVC-->>AUTH: user | RpcException(404)
+
+    alt user not found | not verified
+        AUTH-->>GW: 401 Unauthorized
+        GW-->>FE: 401 Unauthorized
+    end
+    end
+
+    rect rgb(255,235,235)
+    Note over FE,R: 2. Lock Check & Early Rejection (no bcrypt executed)
+
+    alt hard_locked = true
+        Note over AUTH: hard_locked in DB → permanent lock, skip Redis + bcrypt
+        AUTH-->>GW: 401 { error_code: "HARD_LOCKED",<br/>message: "Account locked. Please reset your password to regain access." }
+        GW-->>FE: 401 HARD_LOCKED
+        Note over FE: UI: "Account locked" + "Reset password" link (→ LOG-08)<br/>Must NOT show MFA challenge
+
+    else hard_locked = false
+        AUTH->>R: EXISTS login:softlock:{userId}
+        R-->>AUTH: 1 (soft lock active)
+        AUTH->>R: TTL login:softlock:{userId}
+        R-->>AUTH: 743 (seconds remaining)
+
+        Note over AUTH: soft lock active → skip bcrypt
+        AUTH-->>GW: 401 { error_code: "SOFT_LOCKED", retry_after_seconds: 743,<br/>message: "Account temporarily locked. Try again in X minutes,<br/>or reset your password to unlock immediately." }
+        GW-->>FE: 401 SOFT_LOCKED
+        Note over FE: UI: countdown timer (from ttl_seconds) + "Reset password" link (→ LOG-08)<br/>Must NOT show MFA challenge
+    end
+    end
