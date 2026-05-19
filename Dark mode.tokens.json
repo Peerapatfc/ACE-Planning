@@ -87,12 +87,12 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            0.04695921391248703,
-            0.039356112480163574,
-            0.03554448485374451
+            0.10951206833124161,
+            0.09798768162727356,
+            0.09030699729919434
           ],
           "alpha": 1,
-          "hex": "#0C0A09"
+          "hex": "#1C1917"
         },
         "$extensions": {
           "com.figma.variableId": "VariableID:50:3772",
@@ -101,8 +101,8 @@
             "STROKE"
           ],
           "com.figma.aliasData": {
-            "targetVariableId": "VariableID:95374b01f729f2ad3c5765ed21071672d5403f7d/-1:-1",
-            "targetVariableName": "Colors/Stone/950",
+            "targetVariableId": "VariableID:b819a6c5e100a5864d58103b3621cbd600db773e/-1:-1",
+            "targetVariableName": "Colors/Stone/900",
             "targetVariableSetId": "VariableCollectionId:e5c8434fef52e723109a2be5de8ec7c04956a00b/-1:-1",
             "targetVariableSetName": "_Primitives"
           },
@@ -556,8 +556,7 @@
           "$extensions": {
             "com.figma.variableId": "VariableID:234:7184",
             "com.figma.scopes": [
-              "ALL_FILLS",
-              "STROKE"
+              "ALL_SCOPES"
             ],
             "com.figma.aliasData": {
               "targetVariableId": "VariableID:2c31dcaa610fa65e24160069f9431d40a5d83b68/-1:-1",
