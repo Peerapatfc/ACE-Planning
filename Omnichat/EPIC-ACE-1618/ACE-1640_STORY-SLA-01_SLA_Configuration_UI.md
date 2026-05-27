@@ -1,9 +1,11 @@
 # STORY-SLA-01: SLA Configuration UI
 
 **ClickUp ID:** ACE-1640
-**Status:** To Do
+**Status:** In Progress
+**Sprint:** Sprint 6 (5/18–5/29)
 **Points:** 8 SP
 **Parent Epic:** ACE-1618
+**Assignees:** Tanawin (Toy), Siraphob Reanmanorom
 **URL:** https://app.clickup.com/t/86d2ptdux
 
 ---
@@ -174,3 +176,13 @@ created_at, updated_at
 - UI tests: BH toggle on/off, preview fetch, warning state
 - API tests: `PATCH /sla/config` พร้อม `bh_aware` field
 - Integration: BH toggle save → SLA-02 reads `bh_aware` correctly
+
+---
+
+## Subtasks
+
+| Task | Assignee | Status |
+|---|---|---|
+| [ACE-2219](https://app.clickup.com/t/86d315hdt) FE — Implement Global SLA Toggle | Tanawin (Toy) | In Progress |
+| [ACE-2220](https://app.clickup.com/t/86d315hjy) BE — Create SLA Config Schema & Migration | Siraphob | Reviewing |
+| [ACE-2221](https://app.clickup.com/t/86d315j6t) BE — SLA Config APIs | Siraphob | In Progress |

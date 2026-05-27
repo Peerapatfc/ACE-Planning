@@ -2,11 +2,11 @@
 
 **ClickUp ID:** ACE-1641
 **Status:** To Do
+**Sprint:** Sprint 6 (5/18–5/29)
 **Points:** 13 SP
 **Parent Epic:** ACE-1618
+**Assignees:** griangsak, Tanawin (Toy), wetchayan
 **URL:** https://app.clickup.com/t/86d2pte0x
-
-**Subtask:** ACE-1663 (Task — 2 SP)
 
 ---
 
@@ -224,3 +224,16 @@ bh_schedule format:
 - Timezone tests: messages ข้ามเที่ยงคืน, workspace timezone ≠ UTC
 - Fallback tests: `bh_aware=false` → 24/7 fallback
 - Integration tests: inbound message → sla fields updated correctly
+
+---
+
+## Subtasks
+
+| Task | Assignee | Status |
+|---|---|---|
+| [ACE-1663](https://app.clickup.com/t/86d2q9tkn) BE — Add SLA fields to conversations (2 SP) | griangsak | To Do |
+| [ACE-2223](https://app.clickup.com/t/86d315md5) BE — Timer start logic | Tanawin (Toy) | To Do |
+| [ACE-2224](https://app.clickup.com/t/86d315p3v) BE — Timer stop logic | griangsak | To Do |
+| [ACE-2226](https://app.clickup.com/t/86d315pux) BE — Implement Business Hours SLA Calculation | griangsak | To Do |
+| [ACE-2227](https://app.clickup.com/t/86d315q34) BE — Implement SLA Follow-up Cycle Logic | griangsak | To Do |
+| [ACE-2235](https://app.clickup.com/t/86d315xjm) BE — Implement Websocket | wetchayan | To Do |

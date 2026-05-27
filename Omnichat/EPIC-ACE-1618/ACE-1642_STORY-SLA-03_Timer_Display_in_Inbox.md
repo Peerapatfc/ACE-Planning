@@ -2,8 +2,10 @@
 
 **ClickUp ID:** ACE-1642
 **Status:** To Do
+**Sprint:** Sprint 6 (5/18–5/29)
 **Points:** 5 SP
 **Parent Epic:** ACE-1618
+**Assignees:** Peerapat Pongnipakorn, Tanawin (Toy), Siraphob Reanmanorom
 **URL:** https://app.clickup.com/t/86d2pte3q
 
 ---
@@ -152,3 +154,21 @@ Story นี้ build SLA timer display ทั้งหมดที่ agent เ
 - Filter tests: Overdue pill toggle
 - Sort tests: SLA due soonest
 - Integration: timer transitions without page reload
+
+---
+
+## Sequence Diagrams
+
+See [ACE-1642_STORY-SLA-03_Sequence_Diagrams.md](ACE-1642_STORY-SLA-03_Sequence_Diagrams.md)
+
+---
+
+## Subtasks
+
+| Task | Assignee | Status |
+|---|---|---|
+| [ACE-2228](https://app.clickup.com/t/86d315qfz) FE — Add SLA Timer Badge in Conversation List | Siraphob | To Do |
+| [ACE-2229](https://app.clickup.com/t/86d315r23) FE — Implement Overdue Filter Pill | Siraphob | To Do |
+| [ACE-2232](https://app.clickup.com/t/86d315t7u) FE — Implement sort by overdue | Tanawin (Toy) | To Do |
+| [ACE-2230](https://app.clickup.com/t/86d315rz8) BE — Add Inbox SLA Filter Support | Peerapat | To Do |
+| [ACE-2231](https://app.clickup.com/t/86d315t4b) BE — Add SLA Sorting Support | Peerapat | To Do |

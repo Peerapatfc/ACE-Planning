@@ -19,9 +19,15 @@ sequenceDiagram
     DB-->>SVC: user | null
     SVC-->>AUTH: user | RpcException(404)
 
-    alt user not found | not verified | hard_locked = true
-        AUTH-->>GW: 401 Unauthorized
-        GW-->>FE: 401 Unauthorized
+    alt hard_locked = true
+        AUTH-->>GW: 401 { error_code: "ACCOUNT_HARD_LOCKED" }
+        GW-->>FE: 401 { error_code: "ACCOUNT_HARD_LOCKED" }
+    else not verified
+        AUTH-->>GW: 401 { error_code: "EMAIL_NOT_VERIFIED" }
+        GW-->>FE: 401 { error_code: "EMAIL_NOT_VERIFIED" }
+    else user not found
+        AUTH-->>GW: 401 { error_code: "INVALID_CREDENTIALS" }
+        GW-->>FE: 401 { error_code: "INVALID_CREDENTIALS" }
     end
 
     AUTH->>R: EXISTS login:softlock:{userId}

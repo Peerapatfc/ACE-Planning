@@ -2,8 +2,10 @@
 
 **ClickUp ID:** ACE-1643
 **Status:** To Do
+**Sprint:** Sprint 6 (5/18–5/29)
 **Points:** 5 SP
 **Parent Epic:** ACE-1618
+**Assignees:** Peerapat Pongnipakorn
 **URL:** https://app.clickup.com/t/86d2pte6q
 
 ---
@@ -229,3 +231,12 @@ History: [cycle 1: met 10:45] [cycle 2: breached 15:01]
 - Integration tests: deadline → job → status change + tag
 - API tests: DELETE system tag → 403
 - Search tests: `sla_breached` tag searchable
+
+---
+
+## Subtasks
+
+| Task | Assignee | Status |
+|---|---|---|
+| [ACE-2233](https://app.clickup.com/t/86d315tu3) BE — Create SLA Event & System Tag Schema | Peerapat | To Do |
+| [ACE-2234](https://app.clickup.com/t/86d315u2q) BE — Create Breach Detection job | Peerapat | To Do |

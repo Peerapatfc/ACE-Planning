@@ -1,88 +1,86 @@
-# EPIC-ACE-1618: SLA Subtask Summary (ClickUp-ready)
+# EPIC-ACE-1618: SLA Subtask Summary (Actual ClickUp)
 
-> Subtask names per story — aligned to repo structure at `apps/omnichat-service/` and `apps/workspace-admin/`
-
----
-
-## ACE-1640 — STORY-SLA-01: SLA Configuration UI (8 SP)
-
-| # | Subtask | Type |
-|---|---------|------|
-| 1.1 | SLA Config API & DB Schema | Backend |
-| 1.2 | Global Settings Section UI | Frontend |
-| 1.3 | Channel SLA Targets UI | Frontend |
-| 1.4 | Warning Logic (FB/IG + BH missing) | Frontend |
-| 1.5 | Form Validation & Save Flow | Frontend |
-
-**Notes:**
-- 1.1: `sla_configs` table migration + `GET /sla/config` + `PATCH /sla/config` + RBAC guard (`config_sla` permission มีอยู่แล้วใน `rbac.types.ts`)
-- 1.2: Global toggle, due soon threshold input, BH toggle + preview fetch จาก SETTINGS-02
-- 1.3: Per-channel rows — toggle, number input, unit dropdown (minutes/hours), reset button, info tooltip
-- 1.4: FB/IG target > 1440min → warning banner; BH toggle ON + ไม่มี BH data → warning + link
-- 1.5: Input validation > 0, save-all button, API error states
+> Actual ClickUp subtasks per story — synced from ClickUp Sprint 6 (5/18–5/29)
 
 ---
 
-## ACE-1641 — STORY-SLA-02: SLA Timer Engine (13 SP)
+## ACE-1640 — STORY-SLA-01: SLA Configuration UI (8 SP) — In Progress
 
-| # | Subtask | Type |
-|---|---------|------|
-| 2.1 | DB Schema & Migration | Backend |
-| 2.2 | Timer Start Logic (inbound hook) | Backend |
-| 2.3 | Business Hours Calculation Functions | Backend |
-| 2.4 | Timer Stop & Status Transitions | Backend |
-| 2.5 | Follow-up Cycle & API Response | Backend |
+| ClickUp ID | Subtask | Type | Assignee | Status |
+|---|---|---|---|---|
+| [ACE-2219](https://app.clickup.com/t/86d315hdt) | FE — Implement Global SLA Toggle | Frontend | Tanawin (Toy) | In Progress |
+| [ACE-2220](https://app.clickup.com/t/86d315hjy) | BE — Create SLA Config Schema & Migration | Backend | Siraphob | Reviewing |
+| [ACE-2221](https://app.clickup.com/t/86d315j6t) | BE — SLA Config APIs | Backend | Siraphob | In Progress |
 
 **Notes:**
-- 2.1: เพิ่ม `sla_status`, `sla_met_at`, `sla_bh_aware` ใน `conversations` table (`sla_due_at` + `waiting_since_at` มีแล้ว)
-- 2.2: แก้ `messages.service.ts` inbound hook — อ่าน `first_response_minutes` จาก `sla_configs` แทน `SLA_DURATION_MS` hardcode; เซ็ต `sla_status = 'active'`
-- 2.3: Pure functions `calculate_sla_due_at` (24/7 + BH-aware) + `next_bh_open_at(timestamp, bh_schedule, timezone)`; location: `src/sla/utils/bh-calculator.ts`
-- 2.4: แก้ agent reply hook → `sla_status = 'met'` + `sla_met_at = now()`; internal note exclusion; `due_soon` threshold check
-- 2.5: Follow-up cycle — `sla_status = 'met'` + new inbound → recalculate + reset `active`; expose `sla_status`, `remaining_seconds`, `sla_bh_aware` ใน `GET /conversations/:id`
+- ACE-2220: `sla_configs` table migration — `workspace_id`, `channel_type`, `enabled`, `first_response_minutes`, `due_soon_minutes`, `bh_aware`
+- ACE-2221: `GET /sla/config` + `PATCH /sla/config` + RBAC guard (`config_sla` permission)
+- ACE-2219: Global toggle, due soon threshold input, BH toggle + preview, per-channel rows, warning logic (FB/IG > 24h), form validation
 
 ---
 
-## ACE-1642 — STORY-SLA-03: Timer Display in Inbox (5 SP)
+## ACE-1641 — STORY-SLA-02: SLA Timer Engine (13 SP) — To Do
 
-| # | Subtask | Type |
-|---|---------|------|
-| 3.1 | Timer Badge Component | Frontend |
-| 3.2 | Overdue Filter Pill | Frontend |
-| 3.3 | Auto-refresh & SLA Sort | Frontend |
+| ClickUp ID | Subtask | Type | Assignee | Status |
+|---|---|---|---|---|
+| [ACE-1663](https://app.clickup.com/t/86d2q9tkn) | BE — Add SLA fields to conversations (2 SP) | Backend | griangsak | To Do |
+| [ACE-2223](https://app.clickup.com/t/86d315md5) | BE — Timer start logic | Backend | Tanawin (Toy) | To Do |
+| [ACE-2224](https://app.clickup.com/t/86d315p3v) | BE — Timer stop logic | Backend | griangsak | To Do |
+| [ACE-2226](https://app.clickup.com/t/86d315pux) | BE — Implement Business Hours SLA Calculation | Backend | griangsak | To Do |
+| [ACE-2227](https://app.clickup.com/t/86d315q34) | BE — Implement SLA Follow-up Cycle Logic | Backend | griangsak | To Do |
+| [ACE-2235](https://app.clickup.com/t/86d315xjm) | BE — Implement Websocket | Backend | wetchayan | To Do |
 
 **Notes:**
-- 3.1: เพิ่ม badge ใน `conversation-item.tsx` — สี active=เขียว / due_soon=เหลือง / breached=แดง; format: `Xh Ym` / `Xm` / `Overdue +Xm`; met + disabled ไม่แสดง; เพิ่ม `sla_status` + `remaining_seconds` ใน `omnichat.ts` types
-- 3.2: Pill "Overdue" ใน filter bar → ส่ง `is_overdue=true` (backend รองรับแล้ว); sort by longest overdue first; `sla_status=breached` only
-- 3.3: `setInterval` 30s refetch สำหรับ conversations ที่มี active SLA; "SLA due soonest" sort by `sla_due_at ASC` (backend รองรับแล้ว)
+- ACE-1663: migration เพิ่ม `sla_status`, `sla_met_at`, `sla_bh_aware` บน `conversations` table (`sla_due_at` มีแล้ว)
+- ACE-2223: แก้ inbound hook ใน `messages.service.ts` — อ่าน `first_response_minutes` จาก `sla_configs` แทน `SLA_DURATION_MS` hardcode; เซ็ต `sla_status = 'active'`
+- ACE-2224: แก้ agent reply hook → `sla_status = 'met'` + `sla_met_at = now()`; internal note exclusion; `due_soon` threshold check
+- ACE-2226: pure functions `calculate_sla_due_at` (BH-aware) + `next_bh_open_at(timestamp, bh_schedule, timezone)`; location: `src/sla/utils/bh-calculator.ts`
+- ACE-2227: Follow-up cycle — `sla_status = 'met'` + new inbound → recalculate + reset `active`; expose `sla_status`, `remaining_seconds`, `sla_bh_aware` ใน `GET /conversations/:id`
+- ACE-2235: WebSocket push เมื่อ SLA state เปลี่ยน (real-time update ฝั่ง frontend)
 
 ---
 
-## ACE-1643 — STORY-SLA-04: Breach Detection & Auto-tag (5 SP)
+## ACE-1642 — STORY-SLA-03: Timer Display in Inbox (5 SP) — To Do
 
-| # | Subtask | Type |
-|---|---------|------|
-| 4.1 | Breach Detection Job | Backend |
-| 4.2 | System Tag Creation (sla_met + sla_breached) | Backend |
-| 4.3 | System Tag Protection | Backend |
-| 4.4 | SLA Events Table & Analytics | Backend |
+| ClickUp ID | Subtask | Type | Assignee | Status |
+|---|---|---|---|---|
+| [ACE-2228](https://app.clickup.com/t/86d315qfz) | FE — Add SLA Timer Badge in Conversation List | Frontend | Siraphob | To Do |
+| [ACE-2229](https://app.clickup.com/t/86d315r23) | FE — Implement Overdue Filter Pill | Frontend | Siraphob | To Do |
+| [ACE-2232](https://app.clickup.com/t/86d315t7u) | FE — Implement sort by overdue | Frontend | Tanawin (Toy) | To Do |
+| [ACE-2230](https://app.clickup.com/t/86d315rz8) | BE — Add Inbox SLA Filter Support | Backend | Peerapat | To Do |
+| [ACE-2231](https://app.clickup.com/t/86d315t4b) | BE — Add SLA Sorting Support | Backend | Peerapat | To Do |
 
 **Notes:**
-- 4.1: BullMQ worker ทุก 1 นาที; scan `WHERE sla_due_at <= NOW() AND sla_status IN ('active','due_soon')`; เปลี่ยน `sla_status = 'breached'`; fire breach event (→ epic 2.8 notification)
-- 4.2: `sla_met` real-time จาก agent reply hook (Task 2.4); `sla_breached` จาก breach job; `INSERT ... ON CONFLICT DO NOTHING` (idempotent)
-- 4.3: `is_system = true` flag บน tag; DELETE → 403 ทุก role (`throw new ForbiddenException('system tag ไม่สามารถลบได้')`); UI ซ่อน delete button ออกจาก DOM + lock icon
-- 4.4: `conversation_sla_events` table migration — `cycle_number`, `event_type` (met/breached), `response_time_sec`; searchable ใน inbox search
+- ACE-2228: badge ใน `conversation-item.tsx` — active=เขียว/due_soon=เหลือง/breached=แดง; format `Xh Ym` / `Xm` / `Overdue +Xm`; met+disabled ไม่แสดง
+- ACE-2229: pill "Overdue" ใน filter bar → filter `sla_status=breached`; sort by elapsed overdue; highlighted เมื่อ active
+- ACE-2232: "SLA due soonest" sort → `sla_due_at ASC`; breached convs ขึ้นก่อน
+- ACE-2230: `GET /conversations` รองรับ `?sla_status=breached` filter param
+- ACE-2231: `GET /conversations` รองรับ `?sort=sla_due_at_asc` sort param
+
+---
+
+## ACE-1643 — STORY-SLA-04: Breach Detection & Auto-tag (5 SP) — To Do
+
+| ClickUp ID | Subtask | Type | Assignee | Status |
+|---|---|---|---|---|
+| [ACE-2233](https://app.clickup.com/t/86d315tu3) | BE — Create SLA Event & System Tag Schema | Backend | Peerapat | To Do |
+| [ACE-2234](https://app.clickup.com/t/86d315u2q) | BE — Create Breach Detection job | Backend | Peerapat | To Do |
+
+**Notes:**
+- ACE-2233: migration สร้าง `conversation_tags` (tag_id, conversation_id, is_system, tag_name) + `conversation_sla_events` (cycle_number, event_type, inbound_at, sla_due_at, resolved_at, response_time_sec); DELETE protection `is_system=true` → 403
+- ACE-2234: BullMQ job ทุก 1 นาที; scan `WHERE sla_due_at <= NOW() AND sla_status IN ('active','due_soon')`; เปลี่ยน status → breached; `INSERT ... ON CONFLICT DO NOTHING` (idempotent); `sla_met` tag real-time จาก agent reply hook; fire breach event (→ epic 2.8)
 
 ---
 
 ## Summary
 
-| Story | Subtasks | SP |
-|-------|----------|----|
-| ACE-1640 SLA Config UI | 5 | 8 |
-| ACE-1641 Timer Engine | 5 | 13 |
-| ACE-1642 Timer Display | 3 | 5 |
-| ACE-1643 Breach + Tag | 4 | 5 |
-| **Total** | **17** | **31 SP** |
+| Story | Status | Subtasks | SP |
+|-------|--------|----------|----|
+| ACE-1640 SLA Config UI | In Progress | 3 | 8 |
+| ACE-1641 Timer Engine | To Do | 6 | 13 |
+| ACE-1642 Timer Display | To Do | 5 | 5 |
+| ACE-1643 Breach + Tag | To Do | 2 | 5 |
+| **Total** | | **16** | **31 SP** |
 
 ---
 
