@@ -1,6 +1,6 @@
 # EPIC-A2.8: Notification Center
 
-**Status:** Backlog | **ClickUp:** [ACE-1943](https://app.clickup.com/t/86d2u3v89) | **Product:** Omni
+**Status:** To Do | **ClickUp:** [ACE-1943](https://app.clickup.com/t/86d2u3v89) | **Product:** Omni
 
 ## Epic Overview
 

@@ -179,6 +179,15 @@ created_at, updated_at
 
 ---
 
+## Diagrams
+
+| Type | File |
+|---|---|
+| Sequence Diagram | [ACE-1640_STORY-SLA-01_Sequence_Diagram.md](Diagrams/ACE-1640_STORY-SLA-01_Sequence_Diagram.md) |
+| ER Diagram | [ACE-1640_STORY-SLA-01_ER_Diagram.md](Diagrams/ACE-1640_STORY-SLA-01_ER_Diagram.md) |
+
+---
+
 ## Subtasks
 
 | Task | Assignee | Status |

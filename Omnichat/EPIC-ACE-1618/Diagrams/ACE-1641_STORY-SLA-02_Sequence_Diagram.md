@@ -8,7 +8,7 @@
 ---
 
 ```mermaid
-sequenceDiagram
+ sequenceDiagram
     autonumber
 
     participant EXT  as External Platform
@@ -160,7 +160,6 @@ sequenceDiagram
     OC->>DB: update WorkspaceSlaConfig / ChannelSlaConfig
     DB-->>OC: updated
     OC->>CACHE: DEL omnichat:sla:config:{tenant_id}:{channel_type}
-    OC->>CACHE: DEL omnichat:bh:schedule:{tenant_id}
     OC-->>AGW: 200 OK
     AGW-->>FE: 200 OK
 
@@ -173,14 +172,4 @@ sequenceDiagram
     TS->>CACHE: DEL omnichat:bh:schedule:{tenant_id}
     TS-->>AGW: 200 OK
     AGW-->>FE: 200 OK
-
-    Note over EXT,FE: 7. API Response — Get Conversation SLA Info
-
-    FE->>AGW: GET /omnichat/conversations/:id
-    AGW->>OC: HTTP GET /conversations/:id (port 3003)
-    OC->>DB: query conversation (sla_due_at, sla_status, sla_bh_aware)
-    DB-->>OC: conversation
-    OC->>OC: remaining_seconds = sla_due_at - now()
-    OC-->>AGW: { sla_status, sla_due_at, remaining_seconds, sla_bh_aware }
-    AGW-->>FE: response
 ```

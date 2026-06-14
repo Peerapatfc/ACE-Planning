@@ -1,7 +1,6 @@
 # STORY-NOTIF-04: Notification Rules Configuration
 
-**Status:** In Progress | **ClickUp:** [ACE-1947](https://app.clickup.com/t/86d2u4b1n) | **Epic:** [ACE-1943](https://app.clickup.com/t/86d2u3v89)  
-**Assignee:** Peerapat Pongnipakorn | **Story Points:** 8 | **Sprint:** Sprint 7 (6/8 - 6/19)
+**Status:** Backlog | **ClickUp:** [ACE-1947](https://app.clickup.com/t/86d2u4b1n) | **Epic:** [ACE-1943](https://app.clickup.com/t/86d2u3v89)
 
 ## User Story
 
@@ -18,8 +17,8 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 - Toggle: เปิด/ปิด event ทั้งหมด (global disable)
 - Recipients: เลือกว่าใครได้รับ `assigned_agent | supervisor | admin` (multi-select)
 - เฉพาะ SLA events: มี additional config
-  - `sla_due_soon` threshold: กี่นาทีก่อน deadline → notify (เชื่อมกับ SLA-01 `due_soon_threshold` แสดงตัวเลขเฉยๆ ไม่สามารถปรับได้ ถ้าจะปรับต้องไปปรับที่ SLA)
-  - `sla_breached` escalation: ถ้าผ่านมา X นาทีหลัง breach และยังไม่มีใครตอบ → notify supervisor
+  - `sla_due_soon` threshold: กี่นาทีก่อน deadline → notify (ดึงจาก SLA-01 `due_soon_threshold` แสดงตัวเลขเฉยๆ ไม่สามารถปรับได้ที่นี่ ถ้าจะปรับต้องไปปรับที่ SLA)
+  - `sla_breached_team` escalation: ถ้าผ่านมา X นาทีหลัง breach และยังไม่มีใครตอบ → notify supervisor (`escalation_minutes` อยู่บน row `sla_breached_team` — ดังนั้นปิด `sla_breached_team` = ปิด escalation ด้วย, intended behavior ✅ confirmed 2026-06-12)
 
 **Rules Page Layout:**
 - แบ่งเป็น 4 กลุ่ม: Conversation Events / Message Events / SLA Events / System Events
@@ -66,7 +65,7 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 **And** all Supervisors receive a `sla_breached_team` notification  
 **And** Admin does not receive it unless Admin is also in the recipients list
 
-### mention and channel_error have fixed recipients that cannot be changed
+### mention and channel_error have fixed recipients
 **Given** Admin views the Notification Rules page  
 **When** they see the `mention` event row  
 **Then** the recipient shows "ผู้ที่ถูก mention"  
@@ -80,11 +79,19 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 **And** it is a separate notification distinct from the initial `sla_breached_team` notification  
 **And** if an agent replies within 30 minutes, escalation does NOT fire
 
-### Escalation does not spam supervisors when many conversations breach at the same time
+### Escalation does not spam supervisors when many conversations breach simultaneously
 **Given** 10 conversations breach simultaneously and escalation is configured  
 **When** escalation fires  
 **Then** supervisors receive individual notifications per conversation  
-**And** a rate-limit or grouping mechanism prevents more than 5 escalation notifications per minute per user
+**And** a rate-limit prevents more than 5 escalation notifications per minute per user
+
+> ⚠️ **AC rate-limit รอ PO เคาะ (2026-06-12):** AC ข้อนี้ตั้งบน premise ว่ามี intrusive UI (toast) ซึ่งไม่มีใน UX จริง — real-time surface มีแค่ bell badge + panel ดังนั้น design ปัจจุบัน**ไม่มี rate-limit ที่ delivery** (push ครบทุกใบ badge ตรงกับความจริงเสมอ) ส่วน throughput คุมที่ source ด้วย cron batch 500/รอบ — เสนอ: (a) ตัด AC ข้อนี้ หรือ (b) defer เป็น future-proofing เมื่อมี toast/sound — ดู `Diagram/NOTIF-04_escalation_v3_sequence.md` (ส่วน AC "individual notifications per conversation" ด้านบนยังถูกต้องตามเดิม)
+
+### Disabling sla_breached_team also disables escalation
+**Given** Admin disables the `sla_breached_team` event  
+**When** a conversation breaches SLA and `escalation_minutes` pass without any agent reply  
+**Then** no team breach notification is sent  
+**And** no escalation notification is sent (escalation config lives on the `sla_breached_team` rule — intended coupling)
 
 ### Rule changes take effect immediately for new events
 **Given** Admin saves a rule change disabling `customer_replied`  
@@ -99,8 +106,8 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 ## Technical Notes
 
 **Dependencies:**
-- NOTIF-01: rules ต้อง wire เข้ากับ NotificationService ก่อน create notification
-- SLA-01: due_soon_minutes ที่ต้อง sync กับ SLA timer config
+- NOTIF-01: rules ต้อง wire เข้ากับ `NotificationService` ก่อน create notification
+- SLA-01: `due_soon_minutes` ที่ต้อง sync กับ SLA timer config
 - SETTINGS-01: Settings shell
 - RBAC-01: เฉพาะ Admin/Supervisor เข้า Notification Rules ได้
 
@@ -109,7 +116,7 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 - Delivery pipeline check: NOTIF-01 query `notification_rules` ก่อน `createNotification`
 - `mention` และ `channel_error` recipients ต้อง hardcode ใน notification logic ไม่ใช่ใน `notification_rules` table
 - Escalation job: scan conversations WHERE `sla_breached` + `elapsed > escalation_minutes` + no reply → fire escalation notification
-- Escalation rate-limit: max 5 escalation notifications per user per minute
+- ~~Escalation rate-limit: max 5 escalation notifications per user per minute~~ ⚠️ รอ PO — premise (toast) ไม่มีใน UX จริง; throughput คุมที่ cron batch 500/รอบแทน (ดู escalation v3)
 
 ## QA / Test Considerations
 
@@ -119,7 +126,7 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 - Set escalation 30m → breach + 30m ไม่มีใครตอบ → supervisor รับ noti
 
 **Edge Cases:**
-- Escalation fires 10 convs พร้อมกัน → rate-limit
+- Escalation fires 10 convs พร้อมกัน → bell มีครบ 10 ใบ, badge เพิ่มครบ (ไม่มี rate-limit — ⚠️ AC เดิมรอ PO เคาะ)
 - Rule change → existing notifications ใน bell ไม่หาย
 
 **Business-Critical Must Not Break:**
@@ -129,16 +136,5 @@ Admin/Supervisor config ได้ ผลของ rules นี้ถูก check
 **Test Types:**
 - Rule config tests: enable/disable + recipients
 - Escalation timer tests
-- Rate-limit tests: bulk breach
+- Bulk breach tests: backlog 2,000 convs → drain 500/รอบ cron, bell/badge ครบทุกใบ (~~rate-limit tests~~ ⚠️ รอ PO)
 - Integration: rule change → delivery behavior changes
-
-## Subtasks
-
-| Task | Name | Status |
-|---|---|---|
-| [ACE-2044](https://app.clickup.com/t/86d2v29c3) | ER Diagram | In Progress |
-| [ACE-2388](https://app.clickup.com/t/86d38xh39) | Sequence Diagram | In Progress |
-| [ACE-2389](https://app.clickup.com/t/86d38xhfn) | Schema & Migration | To Do |
-| [ACE-2390](https://app.clickup.com/t/86d38xhgw) | UI | To Do |
-| [ACE-2391](https://app.clickup.com/t/86d38xj7b) | API GET, PATCH | To Do |
-| [ACE-2392](https://app.clickup.com/t/86d38xm3k) | Handle Emit Event Type From Config | To Do |
