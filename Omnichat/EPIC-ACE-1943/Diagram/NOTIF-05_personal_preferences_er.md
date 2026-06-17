@@ -35,7 +35,6 @@ erDiagram
     string   conversation_id    "nullable"
     string   actor_id           "nullable"
     json     metadata
-    string   message
     boolean  is_read            "default false"
     datetime read_at            "nullable"
     datetime created_at
@@ -46,11 +45,11 @@ erDiagram
   notification_rules       }o..o{ notification_preferences : "logical — global rule overrides (no FK)"
 ```
 
-| Table | สถานะ | มาจาก |
-|---|---|---|
-| `notification_preferences` | 🆕 **สร้างใหม่** | NOTIF-05 (story นี้) |
-| `notification_rules` | ♻️ มีอยู่แล้ว ไม่แก้ | NOTIF-04 |
-| `notifications` | ♻️ มีอยู่แล้ว ไม่แก้ | NOTIF-01 |
+| Table                      | สถานะ                | มาจาก                |
+| -------------------------- | -------------------- | -------------------- |
+| `notification_preferences` | 🆕 **สร้างใหม่**     | NOTIF-05 (story นี้) |
+| `notification_rules`       | ♻️ มีอยู่แล้ว ไม่แก้ | NOTIF-04             |
+| `notifications`            | ♻️ มีอยู่แล้ว ไม่แก้ | NOTIF-01             |
 
 ---
 
@@ -75,29 +74,29 @@ model NotificationPreference {
 
 ### Key design decisions
 
-| Decision | Rationale |
-|---|---|
-| Composite PK `(user_id, tenant_id, event_type)` | Natural identity — no surrogate key needed; upsert/delete by this key |
-| No record = unmuted | Default-open model: new users receive everything until they mute explicitly. Avoids seeding a row per user per event on join. |
-| No FK to `notifications` or `notification_rules` | Both are in the same service DB but we prefer loose coupling; `event_type` is a string enum validated at the service layer |
-| `muted` boolean only | No frequency / quiet-hours / channel — those are R2 scope per story |
+| Decision                                         | Rationale                                                                                                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Composite PK `(user_id, tenant_id, event_type)`  | Natural identity — no surrogate key needed; upsert by this key                                                                                                                                 |
+| No record = unmuted                              | Default-open model: new users receive everything until they mute explicitly. Row ถูกสร้างเมื่อ user แตะ preference ครั้งแรก (muted หรือ unmuted) — ต่างจากไม่มี row เลยซึ่งหมายถึงยังไม่เคยแตะ |
+| No FK to `notifications` or `notification_rules` | Both are in the same service DB but we prefer loose coupling; `event_type` is a string enum validated at the service layer                                                                     |
+| `muted` boolean only                             | No frequency / quiet-hours / channel — those are R2 scope per story                                                                                                                            |
 
 ---
 
 ### Role-to-event visibility (what shows up in My Preferences UI)
 
-| Event | Agent | Supervisor | Admin |
-|---|---|---|---|
-| `conversation_assigned`   | ✅ | ✅ | ✅ |
-| `conversation_reassigned` | ✅ | ✅ | ✅ |
-| `conversation_unassigned` | —  | ✅ | ✅ |
-| `new_conversation`        | —  | ✅ | ✅ |
-| `customer_replied`        | ✅ | ✅ | ✅ |
-| `mention`                 | ✅ | ✅ | ✅ |
-| `sla_due_soon`            | ✅ | ✅ | ✅ |
-| `sla_breached`            | ✅ | ✅ | ✅ |
-| `sla_breached_team`       | —  | ✅ | ✅ |
-| `channel_error`           | —  | —  | ✅ |
+| Event                     | Agent | Supervisor | Admin |
+| ------------------------- | ----- | ---------- | ----- |
+| `conversation_assigned`   | ✅    | ✅         | ✅    |
+| `conversation_reassigned` | ✅    | ✅         | ✅    |
+| `conversation_unassigned` | —     | ✅         | ✅    |
+| `new_conversation`        | —     | ✅         | ✅    |
+| `customer_replied`        | ✅    | ✅         | ✅    |
+| `mention`                 | ✅    | ✅         | ✅    |
+| `sla_due_soon`            | ✅    | ✅         | ✅    |
+| `sla_breached`            | ✅    | ✅         | ✅    |
+| `sla_breached_team`       | —     | ✅         | ✅    |
+| `channel_error`           | —     | —          | ✅    |
 
 `—` = role never receives this event per NOTIF-04 rules → not shown in the UI, preference row never written.
 

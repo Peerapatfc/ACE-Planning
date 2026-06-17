@@ -66,7 +66,7 @@ sequenceDiagram
     NotiSvc-->>API: RpcException 400
     API-->>FE: 400 Bad Request
   else valid
-    NotiSvc->>DB_N: $transaction — upsert only changed rows<br/>  muted = true  → UPSERT notification_preferences<br/>  muted = false → DELETE WHERE user_id + tenant_id + event_type
+    NotiSvc->>DB_N: $transaction — UPSERT all changed rows<br/>  UPSERT notification_preferences SET muted = {value}<br/>  WHERE user_id + tenant_id + event_type
     DB_N-->>NotiSvc: done
 
     NotiSvc->>Redis: DEL notification:prefs:{tenant_id}:{user_id}
@@ -80,8 +80,8 @@ sequenceDiagram
 
 **Notes:**
 
-- ใช้ DELETE แทน UPSERT `muted=false` เพื่อให้ table เบา — default คือไม่มี row = unmuted อยู่แล้ว ไม่ต้องเก็บ row ที่ค่าเป็น default
-- UPSERT เฉพาะ row ที่ `muted = true` — ถ้า user save ครั้งแรกโดยไม่ได้ปิดอะไรเลย จะไม่มีการเขียน DB เลย
+- ใช้ UPSERT ทุก row (รวม `muted = false`) เพื่อเก็บ history ว่า user เคยแตะ preference นั้น — ต่างจาก user ใหม่ที่ไม่มี row เลย
+- Delivery check ยังคงเช็ค `muted = true` เหมือนเดิม — row ที่ `muted = false` ไม่มีผลต่อการส่ง notification
 - `DEL notification:prefs:{tenant_id}:{user_id}` หลัง save เพื่อ invalidate cache ทันที — TTL 300s เป็นแค่ safety net ไม่ใช่ primary invalidation
 - validation business rules (ข้อ 1–2) ทำที่ NotiSvc — gateway ทำแค่ validate shape ของ DTO
 
