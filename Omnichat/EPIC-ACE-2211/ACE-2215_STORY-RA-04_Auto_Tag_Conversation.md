@@ -1,8 +1,9 @@
 # STORY-RA-04: Auto-Tag Conversation
 
 **ClickUp ID:** ACE-2215
-**Status:** Backlog
+**Status:** To Do
 **Points:** 3 SP
+**Assignees:** Tanawin(Toy)
 **Parent Epic:** ACE-2211
 **URL:** https://app.clickup.com/t/86d311653
 

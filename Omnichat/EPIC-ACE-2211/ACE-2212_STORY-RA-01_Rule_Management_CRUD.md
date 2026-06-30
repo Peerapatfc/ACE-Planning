@@ -1,8 +1,9 @@
 # STORY-RA-01: Rule Management (CRUD)
 
 **ClickUp ID:** ACE-2212
-**Status:** Backlog
+**Status:** In Progress
 **Points:** 8 SP
+**Assignees:** Tanawin(Toy), Peerapat Pongnipakorn
 **Parent Epic:** ACE-2211
 **URL:** https://app.clickup.com/t/86d3115yy
 

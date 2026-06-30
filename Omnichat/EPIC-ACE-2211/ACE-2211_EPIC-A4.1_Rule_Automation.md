@@ -1,11 +1,11 @@
 # EPIC-A4.1: Rule Automation
 
 **ClickUp ID:** ACE-2211
-**Status:** Backlog
+**Status:** To Do
 **Product:** Omni
 **Type:** Epic
 **URL:** https://app.clickup.com/t/86d3115uz
-**Last Synced:** 2026-06-08
+**Last Synced:** 2026-06-23
 
 ---
 
@@ -24,10 +24,10 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 
 | Story | ชื่อ | สาระสำคัญ | Status | SP | URL |
 |-------|------|-----------|--------|----|-----|
-| ACE-2212 | STORY-RA-01: Rule Management (CRUD) | Rule list, wizard action-first, CRUD + permission matrix | ⚪ Backlog | 8 | https://app.clickup.com/t/86d3115yy |
-| ACE-2213 | STORY-RA-02: Define Trigger Conditions | Keyword / Channel / Business hours + AND/OR logic + test panel | ⚪ Backlog | 5 | https://app.clickup.com/t/86d31160t |
-| ACE-2214 | STORY-RA-03: Send Auto-reply Message | Text editor, template variables, cooldown, only-first-wins | ⚪ Backlog | 2 | https://app.clickup.com/t/86d31162h |
-| ACE-2215 | STORY-RA-04: Auto-Tag Conversation | Append-only tag, tagged_by_type metadata, inline create | ⚪ Backlog | 3 | https://app.clickup.com/t/86d311653 |
+| ACE-2212 | STORY-RA-01: Rule Management (CRUD) | Rule list, wizard action-first, CRUD + permission matrix | 🔵 In Progress | 8 | https://app.clickup.com/t/86d3115yy |
+| ACE-2213 | STORY-RA-02: Define Trigger Conditions | Keyword / Channel / Business hours + AND/OR logic + test panel | 🔵 In Progress | 5 | https://app.clickup.com/t/86d31160t |
+| ACE-2214 | STORY-RA-03: Send Auto-reply Message | Text editor, template variables, cooldown, only-first-wins | ⚪ To Do | 2 | https://app.clickup.com/t/86d31162h |
+| ACE-2215 | STORY-RA-04: Auto-Tag Conversation | Append-only tag, tagged_by_type metadata, inline create | ⚪ To Do | 3 | https://app.clickup.com/t/86d311653 |
 
 **Total: 18 SP**
 
@@ -47,8 +47,10 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 
 | Action | Key config | Important notes |
 |--------|-----------|----------------|
-| Auto-reply | Message + variables + cooldown (required) | Only-first-wins, sender_type = rule, ไม่นับ FRT |
-| Add tag | Multi-select + create inline | Append-only, tagged_by_type = rule |
+| Auto-reply | Message + variables + cooldown (required) | Only-first-wins, sender_type = rule, ไม่ advance SLA first-agent-response |
+| Add tag | Multi-select + create inline | Append-only (soft-delete), tagged_by_type = rule (column ใหม่) |
+
+> **⚠️ Channel send (verify กับ repo):** auto-reply ส่งได้เฉพาะ **LINE / Facebook / Instagram / Lazada** — **TikTok** ยังส่งไม่ได้ (`tiktok.strategy.ts` คืน *"not yet supported"*), **Shopee** ไม่มี send strategy (stub poller) บน 2 channel นี้ rule ติด tag ได้แต่ข้าม auto-reply
 
 ---
 
@@ -56,8 +58,8 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 
 เมื่อ message เข้า ระบบจะ:
 
-1. ตรวจว่า message มาจาก bot/system หรือไม่ → ถ้าใช่ **skip ทั้งหมด** (background)
-2. ตรวจ message deduplication 5-second window → ถ้าซ้ำ **skip** (background)
+1. ตรวจว่า message มาจาก bot/system หรือไม่ → ถ้าใช่ skip ทั้งหมด (background)
+2. ตรวจ message deduplication 5-second window → ถ้าซ้ำ **skip** (background — guard ใหม่; dedup เดิม 24 ชม. อยู่ที่ webhook gateway)
 3. Evaluate conditions ทุก active rule ณ เวลาที่ message เข้า (single-pass)
 4. Execute actions ของ rules ที่ match ทั้งหมด เรียงตาม `created_at` (เก่าสุดก่อน)
    - **Add tag:** ทุก rule ที่ match ติด tag ได้ (append-only, ไม่ duplicate)
@@ -69,10 +71,10 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 - Rule C: tag: cancellation-risk ติด ✓
 
 **สิ่งที่ทำงาน background (ไม่ expose ใน UI):**
-- `sender_type = 'rule'` ใน message record — ป้องกัน agent KPI ผิดพลาด
-- `first_human_response_at` แยกจาก `first_response_at` — SLA metric ถูกต้อง
-- Bot sender skip — message จาก bot/system ไม่ trigger rule
-- Message deduplication 5s window — ป้องกัน trigger ซ้ำจาก message เดิม
+- `sender_type = 'rule'` ใน message record ป้องกัน agent KPI ผิดพลาด
+- `first_human_response_at` แยกจาก `first_response_at` SLA metric ถูกต้อง
+- Bot sender skip message จาก bot/system ไม่ trigger rule
+- Message deduplication 5s window ป้องกัน trigger ซ้ำจาก message เดิม
 
 ---
 
@@ -110,8 +112,8 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 
 | Scenario / เคส | ปัญหา / Risk | Business Decision / Solution |
 |----------------|-------------|------------------------------|
-| Bot auto-reply ทำให้ FRT หยุดนับ | SLA metric ดีเกินจริง agent performance report ผิดพลาด | `sender_type = 'rule'` ใน message; `first_human_response_at` แยกจาก `first_response_at`; SLA ใช้ human field |
-| ไม่รู้ว่า message ไหน agent ตอบ message ไหน rule ตอบ | Audit / tracing ทำไม่ได้; KPI agent ผิด | `sender_type` enum ใน message: human / rule / system; KPI dashboard filter by sender_type |
+| Bot auto-reply ทำให้ FRT หยุดนับ | SLA metric ดีเกินจริง agent performance report ผิดพลาด | `sender_type = 'rule'` ใน message; `first_human_response_at` แยกจาก `first_response_at`; SLA ใช้ human field; auto-reply ไม่นับ FRT |
+| ไม่รู้ว่า message ไหน agent ตอบ message ไหน rule ตอบ | Audit / tracing ทำไม่ได้; KPI agent ผิด | sender_type enum ใน message: human / rule / system; KPI dashboard filter by sender_type |
 | Tag ที่ rule ติดปนกับ tag ที่ agent ติดใน report | ไม่รู้ว่า tag มาจากคนหรือ automation | `tagged_by_type = 'rule'` ใน metadata; report filter แยก manual / automated tagging ได้ |
 
 ### Rule Management & Permission
@@ -129,3 +131,9 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 | Tag ถูกลบออกจาก system หลัง rule สร้าง | Rule crash หรือ action อื่นหยุดทำงาน | Skip tag ที่หายไปโดยไม่ error log warning; actions อื่นใน rule ยังทำงานปกติ |
 | Rule ติด tag ที่ conversation มีอยู่แล้ว | Duplicate tag ทำให้ display แปลก | Dedup ก่อนติด; ถ้ามีแล้ว skip tag นั้น |
 | Agent ลบ tag ที่ rule ติด แต่ rule trigger ซ้ำ | Tag กลับมาทำให้ agent งง | ถ้า cooldown ยังไม่หมด rule ไม่ trigger ซ้ำ; tag ถูกลบโดย agent จะ stay ลบจนกว่า cooldown หมดและ rule trigger ใหม่ |
+
+---
+
+## Wireframe
+
+https://claude.ai/public/artifacts/6d86c342-2c98-44d3-8e74-65943003d3d3

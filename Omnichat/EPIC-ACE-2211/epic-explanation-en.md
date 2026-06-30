@@ -40,14 +40,16 @@ Multiple conditions are joined by **AND** (all must match) or **OR** (any one mu
 | Action | Key Config | Behavior |
 |--------|-----------|----------|
 | Auto-reply | Message + template variables + cooldown | Sent via the same channel the customer used |
-| Add tag | Multi-select + create inline | Append-only — never removes existing tags |
+| Add tag | Multi-select + create inline | Append-only — never removes existing tags (soft-delete model) |
+
+> **⚠️ Channel reality (verified against repo):** Auto-reply can only be **sent** on channels with an outbound integration today: **LINE, Facebook, Instagram, Lazada**. **TikTok** outbound is not yet implemented (`tiktok.strategy.ts` returns *"not yet supported"*) and **Shopee** has no send strategy at all (only a stub poller). On those two channels a rule will still **add tags** but **skips the auto-reply** (logged). The auto-tag action works on any channel.
 
 ### 1.4 Rule Execution Logic
 
 When a message arrives, the system always follows these steps:
 
-1. **Bot check:** Did this message come from a bot/system? → If yes, skip everything (background)
-2. **Dedup check:** Is this message a duplicate within 5 seconds? → If yes, skip (background)
+1. **Sender check:** Is `sender_type` a customer message (`'contact'`)? → Only `'contact'` is evaluated; `'agent'` and `'system'` messages are skipped (background)
+2. **Dedup check:** Is this message a duplicate within 5 seconds? → If yes, skip (background) — *new guard to be built; the existing 24-hour dedup lives at the webhook gateway, not here*
 3. **Evaluate:** Check all active rule conditions simultaneously (single-pass)
 4. **Execute:** All matching rules execute in `created_at` order (oldest first):
    - **Add tag:** Every matching rule can tag (append-only)
@@ -59,10 +61,10 @@ When a message arrives, the system always follows these steps:
 
 | Mechanism | How It Works | What It Prevents |
 |-----------|-------------|-----------------|
-| `sender_type = 'rule'` | Message record identifies the rule as sender, not an agent | Incorrect agent KPI |
-| Separate `first_human_response_at` | SLA does not count auto-replies as FRT | Inflated SLA metrics |
-| Bot sender skip | Checks sender_type before evaluating | Platform notifications triggering rules incorrectly |
-| Message dedup 5s | Evaluates once per unique message | Duplicate auto-replies from re-sent messages |
+| `sender_type = 'rule'` | Message record identifies the rule as sender, not an agent. **Note:** `sender_type` is a plain string field (`contact \| agent \| system` today); `'rule'` is a new app-level value — not a DB enum. AI replies currently use `'agent'`. | Incorrect agent KPI |
+| SLA state machine excludes rule replies | There is **no** `first_human_response_at` field — FRT is derived from `sla_first_inbound_at` + the SLA state machine + `ConversationSlaEvent.response_time_sec`. A `sender_type='rule'` message must not advance the "first agent response" state. | Inflated SLA / FRT metrics |
+| Non-customer sender skip | Evaluates only `sender_type = 'contact'`; skips `agent`/`system` | Echoes & system messages triggering rules incorrectly |
+| Message dedup 5s | Evaluates once per unique message (new guard) | Duplicate auto-replies from re-sent messages |
 
 ---
 
@@ -111,16 +113,16 @@ Starts by selecting an Action — not a blank form — to reduce decision fatigu
 
 ## 3. User Flow
 
-#### Scenario: Customer types "cancel" on Shopee outside business hours
+#### Scenario: Customer types "cancel" on LINE outside business hours
 
 Two rules are configured:
-- Rule A: keyword contains "cancel" AND channel = Shopee → auto-reply "Noted!" + tag "cancellation-risk"
+- Rule A: keyword contains "cancel" AND channel = LINE → auto-reply "Noted!" + tag "cancellation-risk"
 - Rule B: business hours = outside → auto-reply "Outside business hours" + tag "off-hours"
 
-1. **Customer sends "cancel my order" via Shopee at 10:00 PM:**
-   - Bot check passes (customer sent it)
+1. **Customer sends "cancel my order" via LINE at 10:00 PM:**
+   - Sender check passes (`sender_type = 'contact'`)
    - Dedup check passes (new message)
-   - Evaluate: Rule A matches (keyword + Shopee ✓), Rule B matches (outside hours ✓)
+   - Evaluate: Rule A matches (keyword + LINE ✓), Rule B matches (outside hours ✓)
    - Execute (sorted by created_at):
      - Rule A: auto-reply "Noted!" → **Sent ✓** / tag "cancellation-risk" → **Applied ✓**
      - Rule B: auto-reply "Outside business hours" → **Skipped ✗** (Rule A already sent — only-first-wins) / tag "off-hours" → **Applied ✓**
@@ -129,7 +131,9 @@ Two rules are configured:
 
 3. **Conversation has 2 tags:** "cancellation-risk" + "off-hours"
 
-4. **FRT continues counting** — `sender_type = 'rule'` does not affect `first_human_response_at`
+4. **FRT continues counting** — the `sender_type = 'rule'` message does not advance the SLA "first agent response" state
+
+> *On a channel without send support (TikTok/Shopee), Rule A's auto-reply would be **skipped**, but both tags would still be applied.*
 
 #### Scenario: Admin deletes a rule
 
@@ -146,11 +150,14 @@ Two rules are configured:
 | Stories in this Epic | 4 Stories (RA-01 through RA-04) |
 | Trigger types | 3: Keyword, Channel, Business hours |
 | Actions | 2: Auto-reply, Add tag |
-| Active rule limit | Max 20 active rules per workspace |
+| Active rule limit | Max 20 active rules per workspace (`tenant_id` in DB) |
 | Rule execution | Single-pass evaluate, oldest-first execute |
-| Auto-reply dedup | Only-first-wins + cooldown per-conversation-per-rule |
-| SLA attribution | `sender_type = 'rule'` does not count as FRT |
-| Tag integrity | Append-only, tagged_by_type = rule, graceful skip if tag deleted |
+| Auto-reply dedup | Only-first-wins + cooldown per-conversation-per-rule (Redis) |
+| Auto-reply channels | LINE / Facebook / Instagram / Lazada only — TikTok & Shopee send not yet supported |
+| SLA attribution | `sender_type = 'rule'` must not advance the SLA first-agent-response state |
+| Tag integrity | Append-only (soft-delete), new `tagged_by_type`/`tagged_by_rule_id` columns, graceful skip if tag deleted |
+
+> **Implementation grounding:** Every technical claim in this Epic was verified against the `ace` repo (branch `dev`). Key realities: `sender_type` and `status` are plain string fields, not DB enums; the new automation-rules engine hooks into `omnichat-service` `messages.service.ts` (post-save); business-hours logic is reused from `packages/shared` with config stored per-tenant in `tenant-service`; outbound sending reuses the per-channel `StrategyRegistry`. See `story-task-breakdown.md` for file-level detail.
 
 ---
 
@@ -178,7 +185,7 @@ Two rules are configured:
 **Key Features:**
 - **Evaluators:** Keyword (contains/exact, case-insensitive Thai/EN), Channel, Business hours (Workspace toggle + custom)
 - **AND/OR logic:** Single-pass evaluation with the selected logic combinator
-- **Background guards:** Bot sender skip, 5-second message deduplication window
+- **Background guards:** Non-customer sender skip (`sender_type ≠ 'contact'`), 5-second message deduplication window (new guard)
 - **Wizard Step 1 UI:** Condition cards + AND/OR toggle + real-time test panel with highlight
 
 **Why it matters:** Incorrect evaluation means rules fire at the wrong time — the test panel reduces misconfiguration before it reaches production.
@@ -193,7 +200,7 @@ Two rules are configured:
 - **Auto-reply executor:** Sends via same channel, only-first-wins, skips if conversation is completed
 - **Variable resolver:** Resolves `{{customer_name}}`, `{{channel}}`, `{{current_time}}` with fallback values
 - **Cooldown:** Required field, per-conversation-per-rule, default 5 minutes
-- **Background:** Sets `sender_type = 'rule'`, does not update `first_human_response_at`, retries 3 times with exponential backoff
+- **Background:** Sets `sender_type = 'rule'`, does not advance the SLA first-agent-response state, retries 3 times with exponential backoff; skips channels without send support (TikTok/Shopee)
 - **Wizard Step 2 (Auto-reply) UI:** Text editor + variable toolbar + fallback inputs + live preview + cooldown field
 
 **Why it matters:** If `sender_type` is wrong or cooldown doesn't work, FRT metrics break and customers receive duplicate messages.

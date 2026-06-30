@@ -11,13 +11,17 @@ Planning and specification repository for **Omnichat Unified Inbox** (ACE projec
 ### ClickUp MCP Server (primary)
 ClickUp MCP server is available — use it directly to read and manage tasks without leaving Claude Code.
 
-Common operations:
+> **⛔ ClickUp Sync Direction — READ ONLY:**
+> ClickUp → Local เท่านั้น ห้ามเขียนกลับขึ้น ClickUp โดยเด็ดขาด
+> - ห้าม `clickup_update_task`, `clickup_create_comment`, `clickup_create_task` หรือ tool ใดที่แก้ไขข้อมูลบน ClickUp
+> - ถ้า user ไม่ได้สั่งชัดเจนว่าให้ push ขึ้น ClickUp → อย่าทำ
+> - การ sync คือ: ดึงข้อมูลจาก ClickUp มาอัพเดทไฟล์ local เท่านั้น
+
+Common operations (read-only):
 - **Get task details:** `clickup_get_task` with task ID (e.g. `ACE-1098`)
 - **Search tasks:** `clickup_search` or `clickup_filter_tasks`
 - **Get workspace hierarchy:** `clickup_get_workspace_hierarchy` to browse spaces/folders/lists
 - **Get task comments:** `clickup_get_task_comments`
-- **Update task:** `clickup_update_task`
-- **Create task comment:** `clickup_create_task_comment`
 
 Workspace team ID: `25605274`
 
