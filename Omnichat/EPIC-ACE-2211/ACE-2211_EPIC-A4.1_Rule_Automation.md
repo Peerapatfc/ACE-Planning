@@ -5,7 +5,7 @@
 **Product:** Omni
 **Type:** Epic
 **URL:** https://app.clickup.com/t/86d3115uz
-**Last Synced:** 2026-06-23
+**Last Synced:** 2026-06-30
 
 ---
 
@@ -26,7 +26,7 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 |-------|------|-----------|--------|----|-----|
 | ACE-2212 | STORY-RA-01: Rule Management (CRUD) | Rule list, wizard action-first, CRUD + permission matrix | 🔵 In Progress | 8 | https://app.clickup.com/t/86d3115yy |
 | ACE-2213 | STORY-RA-02: Define Trigger Conditions | Keyword / Channel / Business hours + AND/OR logic + test panel | 🔵 In Progress | 5 | https://app.clickup.com/t/86d31160t |
-| ACE-2214 | STORY-RA-03: Send Auto-reply Message | Text editor, template variables, cooldown, only-first-wins | ⚪ To Do | 2 | https://app.clickup.com/t/86d31162h |
+| ACE-2214 | STORY-RA-03: Send Auto-reply Message | Text editor, template variables, cooldown, only-first-wins | 🔵 In Progress | 2 | https://app.clickup.com/t/86d31162h |
 | ACE-2215 | STORY-RA-04: Auto-Tag Conversation | Append-only tag, tagged_by_type metadata, inline create | ⚪ To Do | 3 | https://app.clickup.com/t/86d311653 |
 
 **Total: 18 SP**
@@ -47,10 +47,8 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 
 | Action | Key config | Important notes |
 |--------|-----------|----------------|
-| Auto-reply | Message + variables + cooldown (required) | Only-first-wins, sender_type = rule, ไม่ advance SLA first-agent-response |
-| Add tag | Multi-select + create inline | Append-only (soft-delete), tagged_by_type = rule (column ใหม่) |
-
-> **⚠️ Channel send (verify กับ repo):** auto-reply ส่งได้เฉพาะ **LINE / Facebook / Instagram / Lazada** — **TikTok** ยังส่งไม่ได้ (`tiktok.strategy.ts` คืน *"not yet supported"*), **Shopee** ไม่มี send strategy (stub poller) บน 2 channel นี้ rule ติด tag ได้แต่ข้าม auto-reply
+| Auto-reply | Message + variables + cooldown (required) | Only-first-wins, sender_type = rule, ไม่นับ FRT |
+| Add tag | Multi-select + create inline | Append-only, tagged_by_type = rule |
 
 ---
 
@@ -59,7 +57,7 @@ Rule Automation ให้ Admin และ Supervisor ตั้งค่า autom
 เมื่อ message เข้า ระบบจะ:
 
 1. ตรวจว่า message มาจาก bot/system หรือไม่ → ถ้าใช่ skip ทั้งหมด (background)
-2. ตรวจ message deduplication 5-second window → ถ้าซ้ำ **skip** (background — guard ใหม่; dedup เดิม 24 ชม. อยู่ที่ webhook gateway)
+2. ตรวจ message deduplication 5-second window → ถ้าซ้ำ **skip** (background)
 3. Evaluate conditions ทุก active rule ณ เวลาที่ message เข้า (single-pass)
 4. Execute actions ของ rules ที่ match ทั้งหมด เรียงตาม `created_at` (เก่าสุดก่อน)
    - **Add tag:** ทุก rule ที่ match ติด tag ได้ (append-only, ไม่ duplicate)
