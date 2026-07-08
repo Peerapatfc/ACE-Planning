@@ -1,6 +1,8 @@
 # STORY-BC-02: Audience Selection and Targeting
 
-**Status:** Backlog | **ClickUp:** [ACE-2295](https://app.clickup.com/t/86d32c89v) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+**Status:** To Do | **ClickUp:** [ACE-2295](https://app.clickup.com/t/86d32c89v) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+
+> **Blocker (comment, griangsak):** Hold ไว้ก่อน ยังไม่มี Contact Tags
 
 ## User Story
 

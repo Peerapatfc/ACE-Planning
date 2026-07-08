@@ -1,6 +1,6 @@
 # STORY-BC-03: Send Broadcast
 
-**Status:** Backlog | **ClickUp:** [ACE-2457](https://app.clickup.com/t/86d3bfjck) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+**Status:** To Do | **ClickUp:** [ACE-2457](https://app.clickup.com/t/86d3bfjck) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
 
 ## User Story
 

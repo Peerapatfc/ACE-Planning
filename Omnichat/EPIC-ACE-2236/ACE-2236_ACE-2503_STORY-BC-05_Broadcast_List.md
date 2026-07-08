@@ -1,6 +1,6 @@
 # STORY-BC-05: Broadcast List
 
-**Status:** Backlog | **ClickUp:** [ACE-2503](https://app.clickup.com/t/86d3dhcrm) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+**Status:** To Do | **ClickUp:** [ACE-2503](https://app.clickup.com/t/86d3dhcrm) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
 
 ## User Story
 
@@ -71,6 +71,8 @@
 ### AC9: After Filter Applied
 **WHEN** filter apply → table shows filtered results, sorted by วันที่อัพเดต newest first
 
+> **Note (comment, griangsak):** search/filter/sorting/pagination ควรอยู่ tab เดิม (ไม่ reset กลับไปที่ tab "ทั้งหมด")
+
 ### AC10: Pagination
 **WHEN** more than 10 items
 **THEN**:
@@ -100,10 +102,10 @@
 | Status | Actions |
 |---|---|
 | Draft | View, Edit, Delete |
-| Scheduled | View, Edit, Cancel Schedule, Delete |
-| Sent | View, Delete |
-| Sent with error | View, Delete |
-| Error | View, Delete |
+| Scheduled | View, Cancel Scheduled |
+| Sent | View |
+| Sent with error | View |
+| Error | View |
 
 - "View" → ไปหน้า Broadcast Detail
 - "Edit" → ไปหน้า Create/Edit form

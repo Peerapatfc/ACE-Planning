@@ -1,6 +1,6 @@
 # EPIC-A5: Broadcast
 
-**Status:** Backlog | **ClickUp:** [ACE-2236](https://app.clickup.com/t/86d318wjb) | **Product:** Omni
+**Status:** To Do | **ClickUp:** [ACE-2236](https://app.clickup.com/t/86d318wjb) | **Product:** Omni
 
 ## Epic Overview
 

@@ -1,6 +1,8 @@
 # STORY-BC-04: Test Broadcast
 
-**Status:** Backlog | **ClickUp:** [ACE-2297](https://app.clickup.com/t/86d32cdk3) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+**Status:** To Do | **ClickUp:** [ACE-2297](https://app.clickup.com/t/86d32cdk3) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+
+Note: ***check ก่อนว่า line มี API เช็ค admin มั้ย — (comment, griangsak): ถ้าไม่มี api admin list ให้ไปใช้ท่า search contact
 
 ## User Story
 
