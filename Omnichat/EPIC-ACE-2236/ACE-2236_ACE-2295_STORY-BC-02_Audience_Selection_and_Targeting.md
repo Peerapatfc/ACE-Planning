@@ -1,8 +1,10 @@
 # STORY-BC-02: Audience Selection and Targeting
 
-**Status:** To Do | **ClickUp:** [ACE-2295](https://app.clickup.com/t/86d32c89v) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb)
+**Status:** In Progress | **ClickUp:** [ACE-2295](https://app.clickup.com/t/86d32c89v) | **Epic:** [ACE-2236](https://app.clickup.com/t/86d318wjb) | **Assignee:** Peerapat
 
-> **Blocker (comment, griangsak):** Hold ไว้ก่อน ยังไม่มี Contact Tags
+> **Blocker (comment, griangsak):** ~~Hold ไว้ก่อน ยังไม่มี Contact Tags~~ — **Resolved** (comment, Pornparawee): ทำได้หลังจากพี่คิว @Peerapat Pongnipakorn ทำ Contact tag เสร็จ
+
+> ⚠️ **AC ใน ClickUp ยังไม่ถูกแก้ตาม team decision 2026-07-13** (targeting แยก 3 โหมด + exclude tags) — AC1.1 ยังเขียน "list รวมทั้ง 2 ชนิด" และยังไม่มี AC ฝั่ง exclude · ดีไซน์ล่าสุดยึดตาม [Diagrams/](Diagrams/ACE-2236_ACE-2295_STORY-BC-02_Sequence_Diagram.md)
 
 ## User Story
 
@@ -40,7 +42,10 @@ Story นี้ focus ที่การเลือก audience สำหรั
 - Contact count (e.g., "VIP (125)")
 - Sorted A-Z
 
-**WHEN** Admin types in search input → filters tag list in real-time (case-insensitive)
+**WHEN** Admin types in search input
+**THEN** filters tag list in real-time:
+- Matches tag name (case-insensitive)
+- Shows only matching tags
 
 **WHEN** no tags match search → shows: "ไม่พบ tag ที่ค้นหา"
 
@@ -48,12 +53,19 @@ Story นี้ focus ที่การเลือก audience สำหรั
 **GIVEN** dropdown is open with tag list
 **WHEN** Admin clicks on a tag
 **THEN**:
-- Tag is selected, appears as chip below search input (with name + [X] remove button)
+- Tag is selected
+- Tag appears as chip below search input:
+  - Tag name in chip
+  - remove button on chip
+  - Tag color/style (if applicable)
 - **Selected tag is REMOVED from dropdown list**
 - Dropdown remains open for multi-select
 - Target estimate updates immediately
 
-**WHEN** Admin selects multiple tags → chips display in horizontal row (wrap to next line if needed)
+**WHEN** Admin selects multiple tags
+**THEN** chips display in horizontal row:
+- Wrap to next line if needed
+- Each chip shows tag name + [X]
 
 ### AC1.3: Remove selected tag
 **GIVEN** Admin has selected tags (shown as chips)
@@ -62,15 +74,17 @@ Story นี้ focus ที่การเลือก audience สำหรั
 - Tag chip is removed
 - **Tag reappears in dropdown list (alphabetically sorted)**
 - Target estimate updates
+- Dropdown list updates (tag becomes available again)
 
 ### AC1.4: Close dropdown
 **GIVEN** dropdown is open
-**WHEN** Admin clicks outside OR presses Escape → dropdown closes AND search input clears AND selected tags remain as chips
+**WHEN** Admin clicks outside dropdown area OR presses Escape key
+**THEN** dropdown closes AND search input clears AND selected tags remain as chips
 
 ### AC1.5: Validation for tag selection
 **GIVEN** Admin selects "Send to specific people"
-**WHEN** they click to proceed AND no tags selected
-**THEN**:
+**WHEN** they click to proceed to next step AND no tags selected
+**THEN** shows validation error:
 - Tag selector border turns RED
 - Error message: "กรุณาเลือกอย่างน้อย 1 tag"
 - Prevents proceeding
@@ -80,7 +94,8 @@ Story นี้ focus ที่การเลือก audience สำหรั
 **WHEN** tags are selected
 **THEN** target estimate shows:
 - Combined **unique** contact count (no duplicates)
-- Example: [VIP] [New Customer] → "Send to approximately **280 recipients**"
+- Example: Tag chips show: [VIP] [New Customer]
+- Estimate below: "Send to approximately **280 recipients**" (unique contacts)
 - Percentage badge: "70%" (if 280 out of 400 total contacts)
 
 **WHEN** tags are added or removed → estimate recalculates in real-time
@@ -89,11 +104,13 @@ Story นี้ focus ที่การเลือก audience สำหรั
 **GIVEN** Admin clicks "Send to everyone" radio button
 **WHEN** selected
 **THEN**:
-- Tag search input is HIDDEN
+- Tag search input is HIDE
 - Any selected tag chips are cleared
+- Estimated reach shows all contacts count of selected LINE OA
 - Shows: "Send to approximately **400 recipients** (100%)"
 
-**WHEN** Admin switches back to "Send to specific people" → tag search input re-enables AND chips area is empty
+**WHEN** Admin switches back to "Send to specific people"
+**THEN** tag search input re-enables AND chips area is empty (ready for selection)
 
 ### AC4: Estimated reach calculation is accurate
 **GIVEN** Admin has configured audience
@@ -102,4 +119,5 @@ Story นี้ focus ที่การเลือก audience สำหรั
 - Has valid line_user_id for the selected LINE OA
 - Has at least one included tag (if "specific people" selected)
 - **Deduplicates contacts** (if contact has multiple selected tags, count once)
-- Calculation completes within 2 seconds
+
+AND calculation completes within 2 seconds
