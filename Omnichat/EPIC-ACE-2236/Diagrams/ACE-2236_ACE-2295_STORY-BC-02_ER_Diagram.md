@@ -30,7 +30,7 @@ erDiagram
     broadcasts {
         uuid id PK "(เดิม — โชว์เฉพาะ column ที่ BC-02 แตะ)"
         text targeting_type "BC-02: all | specific_people | specific_chat"
-        int  target_estimate "BC-02: stamp จากผล estimate endpoint (เลิกใช้ followerCount)"
+        int  target_estimate "BC-02: stamp เลขเดียวกับที่โชว์ — everyone=reachableCount · specific=ผล estimate"
     }
 
     contact_tag_labels {
@@ -56,9 +56,9 @@ erDiagram
 ## Notes
 
 - **tag_type (contact|chat):** บอกว่า tag_id ชี้ library ไหน → โค้ดใช้เลือกทาง JOIN (contact → `contact_tags(contact_id)` ดูที่ตัวคน · chat → `conversation_tags(conversation_id)` ดูที่ห้องแชทของ OA ที่เลือก) และเลือกตารางที่ใช้ resolve ชื่อตอน GET · ทุกแถวชนิดเดียวตาม targeting_type เสมอ — **server ใส่ tag_type ให้เองตามโหมด (payload ไม่ส่ง type)** · ยังเก็บต่อแถวเพราะอยู่ใน UNIQUE key + แถว self-describing (BC-03 อ่านแล้วรู้ทาง JOIN ไม่ต้องย้อนดู targeting_type)
-- **mode (include|exclude):** exclude ชนะ include — `recipients = (ผ่านเงื่อนไข include ของโหมด · everyone = ทุกคน) AND NOT (exclude-match)` · exclude เป็น optional เฉพาะโหมด specific — โหมด everyone ไม่มีแถวในตารางนี้เลย · validation บังคับ include ≥ 1 เฉพาะโหมด specific
+- **mode (include|exclude):** exclude ชนะ include — `recipients = (ผ่านเงื่อนไข include ของโหมด · everyone = ทุกคน) AND NOT (exclude-match)` · exclude เป็น optional เฉพาะโหมด specific — โหมด everyone ไม่มีแถวในตารางนี้เลย · validation บังคับ include ≥ 1 เฉพาะโหมด specific · โหมด specific มี **limit 500 คน** (const ในโค้ด — block ตอน send|schedule ด้วย estimate สด · draft เซฟได้ · everyone ไม่จำกัด — 2026-07-15)
 - **ทำไมเป็นตารางลูก ไม่ใช่ JSONB บน broadcasts:** (1) GET ต้อง JOIN library ตาม tag_type เพื่อได้*ชื่อปัจจุบัน* — tag ถูก rename → chip โชว์ชื่อใหม่เอง · tag ถูก soft-delete → JOIN ไม่ติด = chip หายเอง ไม่ broadcast หา audience ของ tag ที่ถูกลบไปแล้ว (2) BC-03 dispatch ต้อง JOIN จาก tag_id ไปหา contact ตรงๆ
 - **แถวที่ tag ต้นทางถูกลบไปแล้ว:** ปล่อยไว้ได้ (orphan ไม่มีพิษ) — ทุก read path JOIN + `deleted_at IS NULL` กรองออกเองทั้งตอนโชว์ chip, estimate และตอนส่ง · ไม่ต้อง cascade
-- **Estimate ไม่เขียนอะไรลง DB** — pure read · `broadcasts.target_estimate` เป็นแค่ snapshot ตอนกด save (โชว์ในหน้า list/detail) · เลขจริงตอนส่ง = BC-03 resolve สดจาก broadcast_tags
+- **Estimate ไม่เขียนอะไรลง DB** — pure read · `broadcasts.target_estimate` เป็นแค่ snapshot ตอนกด save (โชว์ในหน้า list/detail) · เลขจริงตอนส่ง: โหมด specific = BC-03 resolve สดจาก broadcast_tags · โหมด everyone = LINE broadcast API ส่งถึง follower ทุกคน (estimate = reachableCount ฝั่ง client — decision 2026-07-15, ไม่ผ่าน estimate endpoint)
 - **เงื่อนไข "reach ได้บน OA นี้" ใน query:** `conversations.channel_account_id = OA` join กับ `contact_identities.channel_type='line'` — เพราะ contact_identities unique ที่ (workspace, channel_type, external_id) ไม่ผูก channel_account · conversations คือตัวผูก contact↔OA ตัวเดียวในระบบ · chat tag match เฉพาะห้องแชทของ OA ที่เลือก
 - **Field ที่ BC-02 เขียนค่าจริง:** broadcast_tags ทั้งตาราง + broadcasts.targeting_type (ค่าใหม่ 2 ตัว) + broadcasts.target_estimate (เปลี่ยนแหล่งเลขเป็น estimate endpoint)
